@@ -1,17 +1,22 @@
-# bmi_calculator
+# BMR (Basal Metabolic Rate) Calculator Aplikasi BMR Calculator adalah aplikasi berbasis Flutter yang dikembangkan untuk menghitung estimasi jumlah kalori basal
 
-A new Flutter project.
+## 👥 Anggota Kelompok
+1. [Nama Anggota 1] - [NIM/ID]
+2. [Nama Anggota 2] - [NIM/ID]
+3. [Nama Anggota 3] - [NIM/ID]
 
-## Getting Started
+## 📱 Deskripsi Aplikasi
+- **Platform**: Android / iOS (Flutter)
+- **Fitur Utama**:
+  - Pemilihan gender (Male/Female)
+  - Slider interaktif untuk memilih tinggi badan (Height)
+  - Tombol inkremen/dekremen untuk berat badan (Weight) dan umur (Age)
+  - Perhitungan otomatis kalori harian (BMR)
+ 
+## 📸 Screenshot Aplikasi
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Cara Menjalankan Project
+1. Clone repository ini.
+2. Buka terminal dan jalankan `flutter pub get`.
+3. Hubungkan emulator atau perangkat fisik Anda.
+4. Jalankan perintah `flutter run`.
