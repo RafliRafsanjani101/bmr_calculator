@@ -1,42 +1,43 @@
 import 'dart:math';
 
-import 'constants.dart';
+enum Gender { male, female }
 
 class Calculator {
+  // Menambahkan parameter 'age' yang wajib diisi saat inisialisasi object
   Calculator({
     required this.height,
     required this.weight,
+    required this.age,
     required this.gender,
   });
 
   final int height;
   final int weight;
+  final int age;
   final Gender gender;
 
-  double _bmi = 0.0;
+  double _bmr = 0.0;
 
-  String calculateBMI() {
-    _bmi = weight / pow(height / 100, 2);
-    return _bmi.toStringAsFixed(1);
+  // Fungsi untuk menghitung BMR menggunakan rumus Mifflin-St Jeor
+  String calculateBMR() {
+    if (gender == Gender.male) {
+      // Rumus BMR untuk Pria
+      _bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    } else {
+      // Rumus BMR untuk Wanita
+      _bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    }
+    // Mengembalikan nilai dalam bentuk string tanpa angka desimal
+    return _bmr.toStringAsFixed(0);
   }
 
+  // Menentukan label hasil kalkulasi
   String getResult() {
-    if (_bmi >= 25) {
-      return 'Overweight';
-    } else if (_bmi >= 18.5) {
-      return 'Normal';
-    } else {
-      return 'Underweight';
-    }
+    return 'Kalori / Hari';
   }
 
+  // Memberikan deskripsi atau penjelasan mengenai angka BMR
   String getInterpretation() {
-    if (_bmi >= 25) {
-      return 'You have a higher than normal body weight. Try to exercise more.';
-    } else if (_bmi >= 18.5) {
-      return 'You have a normal body weight. Good job!';
-    } else {
-      return 'You have a lower than normal body weight. You can eat a bit more.';
-    }
+    return 'Ini adalah estimasi jumlah kalori basal (BMR) yang dibutuhkan tubuh Anda untuk berfungsi saat istirahat total.';
   }
 }
