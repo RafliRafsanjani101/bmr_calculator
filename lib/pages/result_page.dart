@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:bmi_calculator/components/custom_card.dart';
-import 'package:bmi_calculator/constants.dart';
-import 'package:bmi_calculator/components/bottom_button.dart';
+import 'package:bmi/bottom_button.dart';
+import 'package:bmi/constants.dart';
+import 'package:bmi/custom_card.dart';
 
 class ResultPage extends StatelessWidget {
   const ResultPage({
+    super.key,
     required this.result,
-    required this.bmi,
+    required this.bmr, // Menangkap data bmr
     required this.information,
   });
 
   final String result;
-  final String bmi;
+  final String bmr;
   final String information;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('BMI CALCULATOR')),
+      appBar: AppBar(title: const Text('BMR CALCULATOR')),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -32,6 +33,7 @@ class ResultPage extends StatelessWidget {
               ),
             ),
           ),
+          // Kartu yang menampilkan Angka BMR dan interpretasinya
           Expanded(
             flex: 5,
             child: CustomCard(
@@ -41,16 +43,20 @@ class ResultPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(result, style: resultTextStyle),
-                  Text(bmi, style: bmiTextStyle),
-                  Text(
-                    information,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 22.0),
+                  Text(bmr, style: bmiTextStyle), // Menampilkan hasil BMR
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Text(
+                      information,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 22.0),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
+          // Tombol Hitung Ulang untuk kembali ke halaman input
           BottomButton(
             buttonTitle: 'RE-CALCULATE',
             onTap: () {
