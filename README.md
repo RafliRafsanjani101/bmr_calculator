@@ -1,9 +1,9 @@
 # BMR (Basal Metabolic Rate) Calculator Aplikasi BMR Calculator adalah aplikasi berbasis Flutter yang dikembangkan untuk menghitung estimasi jumlah kalori basal
 
 ## 👥 Anggota Kelompok
-1. [Nama Anggota 1] - [NIM/ID]
-2. [Nama Anggota 2] - [NIM/ID]
-3. [Nama Anggota 3] - [NIM/ID]
+1. Muhammad Rafli Rafsanjani - K3524030
+2. Yusuf Nurul Huda - K3524038
+3. Muhammad Ramdhani - K3524080
 
 ## 📱 Deskripsi Aplikasi
 - **Platform**: Android / iOS (Flutter)
