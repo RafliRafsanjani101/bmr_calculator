@@ -1,36 +1,70 @@
+// =====================================================================
+// input_page.dart - Halaman input data pengguna
+//
+// ALUR HALAMAN INI:
+// 1. Pengguna memilih gender, menggeser slider tinggi, mengatur berat
+//    dan umur dengan tombol -/+, lalu memilih rumus BMR.
+// 2. Setiap perubahan memanggil setState() agar tampilan diperbarui.
+// 3. Jika rumus Katch-McArdle dipilih, muncul slider Body Fat.
+// 4. Tombol CALCULATE BMR: buat objek Calculator, hitung BMR, lalu
+//    pindah ke ResultPage sambil membawa hasilnya.
+// =====================================================================
+
 import 'package:flutter/material.dart';
-import 'package:bmi/bottom_button.dart';
-import 'package:bmi/calculator.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:bmi/components/custom_card.dart';
+import 'package:bmi/components/icon_card.dart';
 import 'package:bmi/constants.dart';
-import 'package:bmi/custom_card.dart';
-import 'package:bmi/icon.dart';
-import 'package:bmi/round_icon_button.dart';
+
 import 'result_page.dart';
 
+import 'package:bmi/components/bottom_button.dart';
+import 'package:bmi/components/round_icon_button.dart';
+import 'package:bmi/calculator.dart';
+
+// StatefulWidget karena tampilannya berubah mengikuti input pengguna.
 class InputPage extends StatefulWidget {
-  const InputPage({super.key});
+  const InputPage({Key? key}) : super(key: key);
 
   @override
   State<InputPage> createState() => _InputPageState();
 }
 
 class _InputPageState extends State<InputPage> {
-  // Inisialisasi nilai default untuk Gender, Height, Weight, dan Age
-  Gender selectedGender = Gender.male;
-  int height = 160;
-  int weight = 60;
-  int age = 20; // Mengaktifkan variabel age untuk BMR
+  // ---------- STATE: data yang diubah pengguna ----------
+  Gender selectedGender = Gender.male; // gender terpilih
+  BmrFormula formula = BmrFormula.mifflin; // rumus terpilih
+  int height = 160; // tinggi (cm)
+  int weight = 60; // berat (kg)
+  int age = 25; // umur (tahun)
+  int bodyFat = 20; // lemak tubuh (%), untuk Katch-McArdle
+
+  // Gaya slider (warna jalur dan tombol geser), dipakai oleh slider
+  // tinggi badan dan slider lemak tubuh.
+  SliderThemeData sliderStyle() {
+    return SliderTheme.of(context).copyWith(
+      activeTrackColor: Colors.white,
+      inactiveTrackColor: const Color(0xFF8D8E98),
+      thumbColor: const Color(0xFFEB1555),
+      overlayColor: const Color(0x29EB1555),
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 15.0),
+      overlayShape: const RoundSliderOverlayShape(overlayRadius: 30.0),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('BMR CALCULATOR')), // Mengubah judul aplikasi
+      appBar: AppBar(title: const Text('BMR CALCULATOR')),
       body: SafeArea(
+        // SingleChildScrollView: halaman bisa digulir bila layar tidak muat,
+        // karena sekarang ada lebih banyak input dibanding versi BMI.
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Bagian Pemilihan Gender (Male / Female)
+              // ---------- 1. Pilihan gender ----------
+              // Kartu yang terpilih berwarna activeCardColor, sisanya redup.
               SizedBox(
                 height: 180.0,
                 child: Row(
@@ -40,13 +74,13 @@ class _InputPageState extends State<InputPage> {
                         color: selectedGender == Gender.male
                             ? activeCardColor
                             : inactiveCardColor,
-                        cardChild: const IconCard(
-                          cardIcon: Icons.male,
+                        cardChild: IconCard(
+                          cardIcon: FontAwesomeIcons.mars.data,
                           caption: 'MALE',
                         ),
                         onPress: () {
                           setState(() {
-                            selectedGender = Gender.male; // Update state gender ke laki-laki
+                            selectedGender = Gender.male;
                           });
                         },
                       ),
@@ -56,13 +90,13 @@ class _InputPageState extends State<InputPage> {
                         color: selectedGender == Gender.female
                             ? activeCardColor
                             : inactiveCardColor,
-                        cardChild: const IconCard(
-                          cardIcon: Icons.female,
+                        cardChild: IconCard(
+                          cardIcon: FontAwesomeIcons.venus.data,
                           caption: 'FEMALE',
                         ),
                         onPress: () {
                           setState(() {
-                            selectedGender = Gender.female; // Update state gender ke perempuan
+                            selectedGender = Gender.female;
                           });
                         },
                       ),
@@ -70,9 +104,10 @@ class _InputPageState extends State<InputPage> {
                   ],
                 ),
               ),
-              // 2. Bagian Slider Tinggi Badan (Height)
+
+              // ---------- 2. Tinggi badan (slider 120-220 cm) ----------
               SizedBox(
-                height: 220.0,
+                height: 200.0,
                 child: CustomCard(
                   color: activeCardColor,
                   cardChild: Column(
@@ -89,21 +124,15 @@ class _InputPageState extends State<InputPage> {
                         ],
                       ),
                       SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: Colors.white,
-                          inactiveTrackColor: const Color(0xFF8D8E98),
-                          thumbColor: const Color(0xFFEB1555),
-                          overlayColor: const Color(0x29EB1555),
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 15.0),
-                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 30.0),
-                        ),
+                        data: sliderStyle(),
                         child: Slider(
                           value: height.toDouble(),
                           min: 120.0,
                           max: 220.0,
+                          // Dipanggil setiap slider digeser.
                           onChanged: (double value) {
                             setState(() {
-                              height = value.round(); // Update nilai tinggi badan
+                              height = value.round();
                             });
                           },
                         ),
@@ -112,34 +141,43 @@ class _InputPageState extends State<InputPage> {
                   ),
                 ),
               ),
-              // 3. Bagian Input Berat Badan (Weight) & Umur (Age)
+
+              // ---------- 3. Berat badan dan umur ----------
+              // Berat minimal 30 kg. Umur dibatasi 15-80 tahun,
+              // sama seperti calculator.net.
               SizedBox(
-                height: 220.0,
+                height: 200.0,
                 child: Row(
                   children: [
-                    // Kolom Berat Badan
+                    // Kartu berat badan
                     Expanded(
                       child: CustomCard(
                         color: activeCardColor,
                         cardChild: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text('WEIGHT', style: labelTextStyle),
+                            const Text('WEIGHT (kg)', style: labelTextStyle),
                             Text(weight.toString(), style: numberTextStyle),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 RoundIconButton(
-                                  icon: Icons.remove,
+                                  icon: FontAwesomeIcons.minus.data,
                                   onPressed: () {
-                                    setState(() { if (weight >= 30) weight--; }); // Kurangi berat
+                                    setState(() {
+                                      if (weight > 30) {
+                                        weight--;
+                                      }
+                                    });
                                   },
                                 ),
                                 const SizedBox(width: 10.0),
                                 RoundIconButton(
-                                  icon: Icons.add,
+                                  icon: FontAwesomeIcons.plus.data,
                                   onPressed: () {
-                                    setState(() { weight++; }); // Tambah berat
+                                    setState(() {
+                                      weight++;
+                                    });
                                   },
                                 ),
                               ],
@@ -148,7 +186,7 @@ class _InputPageState extends State<InputPage> {
                         ),
                       ),
                     ),
-                    // Kolom Umur
+                    // Kartu umur (baru, dibutuhkan semua rumus BMR)
                     Expanded(
                       child: CustomCard(
                         color: activeCardColor,
@@ -161,16 +199,24 @@ class _InputPageState extends State<InputPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 RoundIconButton(
-                                  icon: Icons.remove,
+                                  icon: FontAwesomeIcons.minus.data,
                                   onPressed: () {
-                                    setState(() { if (age > 0) age--; }); // Kurangi umur
+                                    setState(() {
+                                      if (age > 15) {
+                                        age--;
+                                      }
+                                    });
                                   },
                                 ),
                                 const SizedBox(width: 10.0),
                                 RoundIconButton(
-                                  icon: Icons.add,
+                                  icon: FontAwesomeIcons.plus.data,
                                   onPressed: () {
-                                    setState(() { age++; }); // Tambah umur
+                                    setState(() {
+                                      if (age < 80) {
+                                        age++;
+                                      }
+                                    });
                                   },
                                 ),
                               ],
@@ -182,30 +228,111 @@ class _InputPageState extends State<InputPage> {
                   ],
                 ),
               ),
-              // 4. Tombol Hitung BMR
+
+              // ---------- 4. Pilihan rumus BMR (dropdown) ----------
+              // Satu item untuk setiap nilai enum BmrFormula.
+              CustomCard(
+                color: activeCardColor,
+                cardChild: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 10.0,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('FORMULA', style: labelTextStyle),
+                      DropdownButton<BmrFormula>(
+                        isExpanded: true,
+                        value: formula,
+                        dropdownColor: activeCardColor,
+                        underline: const SizedBox(),
+                        items: [
+                          for (final f in BmrFormula.values)
+                            DropdownMenuItem<BmrFormula>(
+                              value: f,
+                              child: Text(formulaNames[f]!),
+                            ),
+                        ],
+                        onChanged: (BmrFormula? value) {
+                          if (value != null) {
+                            setState(() {
+                              formula = value;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ---------- 5. Lemak tubuh (khusus Katch-McArdle) ----------
+              // "if" di dalam daftar children: kartu hanya muncul jika
+              // rumus Katch-McArdle yang dipilih.
+              if (formula == BmrFormula.katchMcArdle)
+                SizedBox(
+                  height: 200.0,
+                  child: CustomCard(
+                    color: activeCardColor,
+                    cardChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('BODY FAT', style: labelTextStyle),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(bodyFat.toString(), style: numberTextStyle),
+                            const Text('%', style: labelTextStyle),
+                          ],
+                        ),
+                        SliderTheme(
+                          data: sliderStyle(),
+                          child: Slider(
+                            value: bodyFat.toDouble(),
+                            min: 5.0,
+                            max: 50.0,
+                            onChanged: (double value) {
+                              setState(() {
+                                bodyFat = value.round();
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // ---------- 6. Tombol hitung ----------
               BottomButton(
                 buttonTitle: 'CALCULATE BMR',
                 onTap: () {
-                  // Inisialisasi object Calculator dengan data yang diinput user
+                  // a. Buat objek Calculator dari data yang diisi pengguna.
                   Calculator cal = Calculator(
                     height: height,
                     weight: weight,
                     age: age,
                     gender: selectedGender,
+                    formula: formula,
+                    bodyFat: bodyFat,
                   );
-                  // Eksekusi fungsi kalkulasi
+                  // b. Hitung BMR (harus dipanggil sebelum getDailyNeeds).
                   String bmr = cal.calculateBMR();
-                  String result = cal.getResult();
-                  String information = cal.getInterpretation();
-                  
-                  // Pindah ke halaman hasil dengan membawa data hasil perhitungan
+
+                  // c. Pindah ke ResultPage dan kirim hasilnya lewat
+                  //    constructor (cara mengirim data antar halaman).
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ResultPage(
-                        result: result,
-                        bmr: bmr, // Menggunakan variabel bmr menggantikan bmi
-                        information: information,
+                        result: cal.getResult(),
+                        bmr: bmr,
+                        information: cal.getInterpretation(),
+                        activities: cal.getDailyNeeds(),
                       ),
                     ),
                   );
